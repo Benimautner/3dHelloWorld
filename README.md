@@ -15,4 +15,5 @@ You can also just download it from releases.
 
 # How to Play
 Controls: wasd to move
+
 Menu: escape to open/close
