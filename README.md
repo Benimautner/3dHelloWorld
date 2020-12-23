@@ -1,5 +1,5 @@
 # 3dHelloWorld
-This is a very basic game written with the unity game engine. It is not:
+This is a very basic game written using the Unity Game Engine. It is not:
 - a good game
 - beautiful in any way, shape or form
 - very playable
@@ -11,3 +11,8 @@ You can also just download it from releases.
 
 # Third Party Assets
 [Free Trees](https://assetstore.unity.com/packages/3d/vegetation/trees/free-trees-103208)
+
+
+# How to Play
+Controls: wasd to move
+Menu: escape to open/close
