@@ -10,7 +10,6 @@ public class PauseMenuController : MonoBehaviour
     void Start()
     {
         pauseMenu.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
@@ -18,10 +17,33 @@ public class PauseMenuController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            pauseMenu.SetActive(!pauseMenu.activeSelf);
-            SharedInfo.inMenu = pauseMenu.activeSelf;
-
-            Cursor.lockState = pauseMenu.activeSelf ? CursorLockMode.None : CursorLockMode.Locked;
+            if (pauseMenu.activeSelf)
+                HideMenu();
+            else
+                ShowMenu();
         }
+
+        if (pauseMenu.activeSelf)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    public void HideMenu()
+    {
+        pauseMenu.SetActive(false);
+        SharedInfo.inMenu = false;
+    }
+
+    void ShowMenu()
+    {
+        pauseMenu.SetActive(true);
+        SharedInfo.inMenu = true;
     }
 }

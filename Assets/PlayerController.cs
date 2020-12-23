@@ -26,8 +26,6 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         
-        Cursor.lockState = CursorLockMode.Locked;
-
         if (Input.GetKey("space") && _onFloor)
         {
             playerBody.AddForce(0, 100, 0);
@@ -80,10 +78,5 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionExit(Collision other)
     {
         _onFloor = false;
-    }
-
-    private void OnCollisionStay(Collision other)
-    {
-        throw new NotImplementedException();
     }
 }
