@@ -21,7 +21,7 @@ public class HeadController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!SharedInfo.inMenu)
+        if (!SharedInfo.InMenu)
         {
             Vector3 movement = new Vector3(0, Input.GetAxis("Mouse X") * mouseMultiplicator,
                 Input.GetAxis("Mouse Y") * mouseMultiplicator);

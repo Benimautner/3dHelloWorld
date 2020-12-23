@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,8 @@ public class PlaneController : MonoBehaviour
     [SerializeField] private MeshFilter _filter;
     [SerializeField] private MeshCollider _collider;
     [SerializeField] private float mapScale;
-    [SerializeField] private float heightMultiplier;
+    [SerializeField] public float heightMultiplier;
+    [SerializeField] public Vector3[] mesh;
     void Start()
     {
         GenerateFloor(new Vector2(0, 0));
@@ -26,8 +28,8 @@ public class PlaneController : MonoBehaviour
 
     void GenerateFloor(Vector2 offset)
     {
-        Vector3[] mesh = _filter.mesh.vertices;
-        int depth = (int) Mathf.Sqrt(mesh.Length);
+        Vector3[] locMesh = _filter.mesh.vertices;
+        int depth = (int) Mathf.Sqrt(locMesh.Length);
         int width = depth;
 
         float[,] heightMap = GenerateNoiseMap(depth, width, mapScale);
@@ -40,13 +42,14 @@ public class PlaneController : MonoBehaviour
             for (int id_x = 0; id_x < width; id_x++)
             {
                 float height = heightMap[id_z, id_x];
-                Vector3 vertex = mesh[id_vertex];
-                mesh[id_vertex] = new Vector3(vertex.x, height * heightMultiplier, vertex.z);
+                Vector3 vertex = locMesh[id_vertex];
+                locMesh[id_vertex] = new Vector3(vertex.x, height * heightMultiplier, vertex.z);
                 id_vertex++;
             }
         }
 
-        _filter.mesh.vertices = mesh;
+        mesh = locMesh;
+        _filter.mesh.vertices = locMesh;
         _filter.mesh.RecalculateBounds();
         _filter.mesh.RecalculateNormals();
 

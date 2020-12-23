@@ -4,7 +4,8 @@ namespace DefaultNamespace
 {
     public class SharedInfo
     {
-        public static bool inMenu;
+        public static bool InMenu;
+        public static Vector3[] MapVertices;
 
         public void exit()
         {

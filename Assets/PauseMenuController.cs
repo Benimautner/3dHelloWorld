@@ -38,12 +38,12 @@ public class PauseMenuController : MonoBehaviour
     public void HideMenu()
     {
         pauseMenu.SetActive(false);
-        SharedInfo.inMenu = false;
+        SharedInfo.InMenu = false;
     }
 
     void ShowMenu()
     {
         pauseMenu.SetActive(true);
-        SharedInfo.inMenu = true;
+        SharedInfo.InMenu = true;
     }
 }

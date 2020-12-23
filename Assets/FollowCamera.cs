@@ -20,7 +20,7 @@ public class FollowCamera : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (!SharedInfo.inMenu)
+        if (!SharedInfo.InMenu)
         {
             float angleY = target.transform.eulerAngles.y;
             float angleZ = target.transform.eulerAngles.z;
