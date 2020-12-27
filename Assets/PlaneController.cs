@@ -15,18 +15,19 @@ public class PlaneController : MonoBehaviour
     [SerializeField] private float mapScale;
     [SerializeField] public float heightMultiplier;
     [SerializeField] public Vector3[] mesh;
+    [SerializeField] public Vector3 offset;
+    [SerializeField] public GameObject player;
     void Start()
     {
-        GenerateFloor(new Vector2(0, 0));
+        GenerateFloor();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
 
-    void GenerateFloor(Vector2 offset)
+    void GenerateFloor()
     {
         Vector3[] locMesh = _filter.mesh.vertices;
         int depth = (int) Mathf.Sqrt(locMesh.Length);
@@ -36,15 +37,15 @@ public class PlaneController : MonoBehaviour
         Texture2D floorTexture = BuildTexture(heightMap);
         _renderer.material.mainTexture = floorTexture;
 
-        int id_vertex = 0;
-        for (int id_z = 0; id_z < depth; id_z++)
+        int idVertex = 0;
+        for (int idZ = 0; idZ < depth; idZ++)
         {
-            for (int id_x = 0; id_x < width; id_x++)
+            for (int idX = 0; idX < width; idX++)
             {
-                float height = heightMap[id_z, id_x];
-                Vector3 vertex = locMesh[id_vertex];
-                locMesh[id_vertex] = new Vector3(vertex.x, height * heightMultiplier, vertex.z);
-                id_vertex++;
+                float height = heightMap[idZ, idX];
+                Vector3 vertex = locMesh[idVertex];
+                locMesh[idVertex] = new Vector3(vertex.x, height * heightMultiplier, vertex.z);
+                idVertex++;
             }
         }
 
@@ -67,7 +68,7 @@ public class PlaneController : MonoBehaviour
                 float sampleX = id_x / scale;
                 float sampleZ = id_z / scale;
 
-                float noise = Mathf.PerlinNoise(sampleX, sampleZ);
+                float noise = Mathf.PerlinNoise(sampleX + offset.x, sampleZ + offset.y);
                 noiseMap[id_z, id_x] = noise;
             }
         }

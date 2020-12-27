@@ -9,51 +9,56 @@ using Cursor = UnityEngine.Cursor;
 public class PlayerController : MonoBehaviour
 {
     // Start is called before the first frame update
-    public PlayerController controller;
-    public Rigidbody playerBody;
-    public Camera camera;
-    private Vector3 _movement;
-    public float mouseMultiplicator;
+    [SerializeField] public PlayerController controller;
+    [SerializeField] public CharacterController characterController;
+    [SerializeField] public Rigidbody playerBody;
+    [SerializeField] public float mouseMultiplicator;
+    [SerializeField] public Camera camera;
+    private const float speedCoeff = 12;
     private bool _onFloor;
-    private Vector3 _dir;
+    private Vector3 _dir = Vector3.zero;
     void Start()
     {
-        //controller = gameObject.GetComponent<PlayerController>();
-        playerBody.position = new Vector3(0, 10, 0);
+        characterController.Move(new Vector3(0, 10, 0));
+        //playerBody.position = new Vector3(0, 10, 0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
-        if (Input.GetKey("space") && _onFloor)
-        {
-            playerBody.AddForce(0, 100, 0);
-        }
-        
-        _dir = Vector3.zero;
+        Vector3 camFwd = camera.transform.forward;
+        camFwd.y = 0;
+
+        _dir.x = 0;
+        _dir.z = 0;
 
         if(Input.GetKey("w"))
         {
-            _dir = camera.transform.forward / 5;
-            _dir.y = 0;
+            _dir += camFwd;
         }
         if (Input.GetKey("s"))
         {
-            _dir = -camera.transform.forward / 5;
-            _dir.y = 0;
+            _dir -= camFwd;
         }
         if(Input.GetKey("a"))
         {
-            playerBody.position += -camera.transform.right / 5;
+            _dir += -camera.transform.right;
         }
         if (Input.GetKey("d"))
         {
-            playerBody.position += camera.transform.right / 5;
-            _movement = Vector3.right;
+            _dir += camera.transform.right;
         }
-        playerBody.position += _dir;
 
+        print(characterController.isGrounded);
+        if (Input.GetKey("space") && characterController.isGrounded)
+        {
+            _dir.y = Mathf.Sqrt(-Physics.gravity.y / 2);
+        }
+
+        _dir += Time.deltaTime * Physics.gravity / 2;
+
+        characterController.Move(speedCoeff * Time.deltaTime * _dir);
+        
 
         if (Input.GetKey("e"))
         {

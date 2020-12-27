@@ -34,7 +34,7 @@ public class TreeController : MonoBehaviour
                     Instantiate(TreeTemplate, newPos, new Quaternion());
                 }
             }
-
+            TreeTemplate.SetActive(false);
             InstantiatedTrees = true;
         }
     }
