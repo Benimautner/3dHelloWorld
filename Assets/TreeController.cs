@@ -8,10 +8,10 @@ using Random = UnityEngine.Random;
 
 public class TreeController : MonoBehaviour
 {
-    [SerializeField] private GameObject TreeTemplate;
-    [SerializeField] private MeshGenerator _meshGenerator;
+    [SerializeField] private GameObject treeTemplate;
+    [SerializeField] private MeshGenerator meshGenerator;
     private Mesh _mesh;
-    private bool InstantiatedTrees = false;
+    private bool _instantiatedTrees = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,12 +21,12 @@ public class TreeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!InstantiatedTrees)
+        if (!_instantiatedTrees)
         {
-            _mesh = _meshGenerator.mesh;
+            _mesh = meshGenerator.mesh;
             
-            int width = _meshGenerator.zSize;
-            int depth = _meshGenerator.xSize;
+            int width = meshGenerator.zSize;
+            int depth = meshGenerator.xSize;
             
             for (int i = 0; i < width; i++)
             {
@@ -36,11 +36,11 @@ public class TreeController : MonoBehaviour
                     
                     Vector3 vertex = _mesh.vertices[i * width + j];
                     Vector3 newPos = new Vector3(vertex.x, vertex.y, vertex.z);
-                    Instantiate(TreeTemplate, newPos, new Quaternion());
+                    Instantiate(treeTemplate, newPos, new Quaternion());
                 }
             }
-            TreeTemplate.SetActive(false);
-            InstantiatedTrees = true;
+            treeTemplate.SetActive(false);
+            _instantiatedTrees = true;
         }
     }
 }
