@@ -7,10 +7,10 @@ using UnityEngine.PlayerLoop;
 public class MeshGenerator : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField] private MeshCollider collider;
+    public new MeshCollider collider;
     public Mesh mesh;
-    private Vector3[] vertices;
-    private int[] triangles;
+    private Vector3[] _vertices;
+    private int[] _triangles;
     public int xSize = 20;
     public int zSize = 20;
     void Start()
@@ -24,18 +24,18 @@ public class MeshGenerator : MonoBehaviour
 
     void CreateShape()
     {
-        vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+        _vertices = new Vector3[(xSize + 1) * (zSize + 1)];
         for (int i = 0, z = 0; z <= zSize; z++)
         {
             for (int x = 0; x <= xSize; x++)
             {
                 float y = Mathf.PerlinNoise(x * .2f, z * .2f) * 10;
-                vertices[i] = new Vector3(x, y, z);
+                _vertices[i] = new Vector3(x, y, z);
                 i++;
             }
         }
 
-        triangles = new int[xSize * zSize * 6];
+        _triangles = new int[xSize * zSize * 6];
 
         int vert = 0, tris = 0;
         for (int z = 0; z < zSize; z++)
@@ -43,12 +43,12 @@ public class MeshGenerator : MonoBehaviour
             
             for (int x = 0; x < xSize; x++)
             {
-                triangles[tris + 0] = vert + 0;
-                triangles[tris + 1] = vert + xSize + 1;
-                triangles[tris + 2] = vert + 1;
-                triangles[tris + 3] = vert + 1;
-                triangles[tris + 4] = vert + xSize + 1;
-                triangles[tris + 5] = vert + xSize + 2;
+                _triangles[tris + 0] = vert + 0;
+                _triangles[tris + 1] = vert + xSize + 1;
+                _triangles[tris + 2] = vert + 1;
+                _triangles[tris + 3] = vert + 1;
+                _triangles[tris + 4] = vert + xSize + 1;
+                _triangles[tris + 5] = vert + xSize + 2;
 
                 vert++;
                 tris += 6;
@@ -62,8 +62,8 @@ public class MeshGenerator : MonoBehaviour
     void UpdateMesh()
     {
         mesh.Clear();
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
+        mesh.vertices = _vertices;
+        mesh.triangles = _triangles;
         mesh.RecalculateNormals();
         
         mesh.RecalculateBounds();
@@ -72,11 +72,11 @@ public class MeshGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(vertices == null) return;
+        if(_vertices == null) return;
         
-        for (int i = 0; i < vertices.Length; i++)
+        for (int i = 0; i < _vertices.Length; i++)
         {
-            Gizmos.DrawSphere(vertices[i], .1f);
+            Gizmos.DrawSphere(_vertices[i], .1f);
             
         }
     }
