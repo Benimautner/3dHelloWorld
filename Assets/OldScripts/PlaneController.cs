@@ -9,9 +9,9 @@ public class PlaneController : MonoBehaviour
     // Start is called before the first frame update
 
 
-    [SerializeField] private MeshRenderer _renderer;
-    [SerializeField] private MeshFilter _filter;
-    [SerializeField] private MeshCollider _collider;
+    [SerializeField] private new MeshRenderer renderer;
+    [SerializeField] private MeshFilter filter;
+    [SerializeField] private new MeshCollider collider;
     [SerializeField] private float mapScale;
     [SerializeField] public float heightMultiplier;
     [SerializeField] public Vector3[] mesh;
@@ -29,13 +29,13 @@ public class PlaneController : MonoBehaviour
 
     void GenerateFloor()
     {
-        Vector3[] locMesh = _filter.mesh.vertices;
+        Vector3[] locMesh = filter.mesh.vertices;
         int depth = (int) Mathf.Sqrt(locMesh.Length);
         int width = depth;
 
         float[,] heightMap = GenerateNoiseMap(depth, width, mapScale);
         Texture2D floorTexture = BuildTexture(heightMap);
-        _renderer.material.mainTexture = floorTexture;
+        renderer.material.mainTexture = floorTexture;
 
         int idVertex = 0;
         for (int idZ = 0; idZ < depth; idZ++)
@@ -50,11 +50,11 @@ public class PlaneController : MonoBehaviour
         }
 
         mesh = locMesh;
-        _filter.mesh.vertices = locMesh;
-        _filter.mesh.RecalculateBounds();
-        _filter.mesh.RecalculateNormals();
+        filter.mesh.vertices = locMesh;
+        filter.mesh.RecalculateBounds();
+        filter.mesh.RecalculateNormals();
 
-        _collider.sharedMesh = _filter.mesh;
+        collider.sharedMesh = filter.mesh;
     }
 
     

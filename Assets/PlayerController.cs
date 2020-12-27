@@ -13,8 +13,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public CharacterController characterController;
     [SerializeField] public Rigidbody playerBody;
     [SerializeField] public float mouseMultiplicator;
-    [SerializeField] public Camera camera;
-    private const float speedCoeff = 12;
+    [SerializeField] public new Camera camera;
+    private const float SpeedCoeff = 12;
     private Vector3 _dir = Vector3.zero;
     void Start()
     {
@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
         _dir += Time.deltaTime * Physics.gravity / 2;
 
-        characterController.Move(speedCoeff * Time.deltaTime * _dir);
+        characterController.Move(SpeedCoeff * Time.deltaTime * _dir);
         
         if (Input.GetKey("e"))
         {
