@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Net.Mime;
 using DefaultNamespace;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class PauseMenuController : MonoBehaviour
 {
@@ -61,10 +63,11 @@ public class PauseMenuController : MonoBehaviour
     
     void ExitGame()
     {
-        if (Application.isEditor)
+        #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
-        else
+        #else
             Application.Quit();
+        #endif
     }
 
     void BackToMenu()

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -10,9 +12,9 @@ using Cursor = UnityEngine.Cursor;
 
 public class StartMenuManager : MonoBehaviour
 {
-    public Button  startGameButton;
+    [SerializeField] private Button startGameButton;
 
-    public Button exitGameButton;
+    [SerializeField] private Button exitGameButton;
     
     [SerializeField] private Text loadingText;
 
@@ -21,13 +23,15 @@ public class StartMenuManager : MonoBehaviour
     {
         loadingText.enabled = false;
         Cursor.lockState = CursorLockMode.None;
+        startGameButton.onClick.AddListener(LaunchGame);
+        exitGameButton.onClick.AddListener(EndGame);
     }
 
     // Update is called once per frame
     void Update()
     {
-        startGameButton.onClick.AddListener(LaunchGame);
-        exitGameButton.onClick.AddListener(EndGame);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     void LaunchGame()
@@ -39,9 +43,10 @@ public class StartMenuManager : MonoBehaviour
 
     void EndGame()
     {
-        if (Application.isEditor)
+        #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
-        else
+        #else
             Application.Quit();
+        #endif
     }
 }
