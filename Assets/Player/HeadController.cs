@@ -1,40 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Xml;
-using DefaultNamespace;
+﻿using DefaultNamespace;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class HeadController : MonoBehaviour
 {
     public float mouseMultiplicator;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        if (mouseMultiplicator == 0)
-        {
-            mouseMultiplicator = 10;
-        }
+        if (mouseMultiplicator == 0) mouseMultiplicator = 10;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (!SharedInfo.InMenu)
-        {
-            Vector3 movement = new Vector3(0, Input.GetAxis("Mouse X") * mouseMultiplicator,
+        if (!SharedInfo.InMenu) {
+            var movement = new Vector3(0, Input.GetAxis("Mouse X") * mouseMultiplicator,
                 Input.GetAxis("Mouse Y") * mouseMultiplicator);
 
             transform.eulerAngles += movement;
             limitRotation();
         }
     }
-    
+
 
     private void limitRotation()
     {
-        Vector3 loc_rotation = transform.eulerAngles;
+        var loc_rotation = transform.eulerAngles;
         loc_rotation.z -= 90;
         loc_rotation.z = Clamp(loc_rotation.z, 10f, 170f);
         loc_rotation.z += 90;
@@ -43,13 +35,9 @@ public class HeadController : MonoBehaviour
 
     private float Clamp(float value, float min, float max)
     {
-        if ((double) value < (double) min)
-        {
+        if (value < (double) min)
             value = min;
-        }else if ((double) value > (double) max)
-        {
-            value = max;
-        }
+        else if (value > (double) max) value = max;
         return value;
     }
 }
