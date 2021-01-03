@@ -23,11 +23,13 @@ public struct MapData
 {
     public Color[] colorMap;
     public float[,] heightMap;
+    public float heightMultiplier;
 
-    public MapData(float[,] heightMap, Color[] colorMap)
+    public MapData(float[,] heightMap, Color[] colorMap, float heightMultiplier = 1)
     {
         this.heightMap = heightMap;
         this.colorMap = colorMap;
+        this.heightMultiplier = heightMultiplier;
     }
 }
 
@@ -71,4 +73,26 @@ public struct ChunkProperties
 public struct WorldProperties
 {
     public int seed;
+}
+
+
+public struct GameObjectThreadInfo
+{
+    public FeatureGenerator featureGenerator;
+    public Vector3[] vertices;
+    public int size;
+    public float heightMultiplier;
+    public MapGenerator mapGenerator;
+    public Vector2 position;
+
+    public GameObjectThreadInfo(FeatureGenerator featureGenerator, Vector3[] vertices, int size, float heightMultiplier,
+        MapGenerator mapGenerator, Vector2 position)
+    {
+        this.featureGenerator = featureGenerator;
+        this.vertices = vertices;
+        this.size = size;
+        this.heightMultiplier = heightMultiplier;
+        this.mapGenerator = mapGenerator;
+        this.position = position;
+    }
 }

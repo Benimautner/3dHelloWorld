@@ -29,6 +29,8 @@ public static class MeshGenerator
                 vertexIndex++;
             }
         }
+        meshData.AddHeightMap(heightMap);
+        meshData.heightMultiplier = heightMultiplier;
 
         return meshData;
     }
@@ -40,6 +42,8 @@ public class MeshData
     public int[] triangles;
     public Vector3[] vertices;
     private int _triangleIndex;
+    public float[,] heightMap;
+    public float heightMultiplier;
 
     public MeshData(int meshWidth, int meshHeight)
     {
@@ -54,6 +58,17 @@ public class MeshData
         triangles[_triangleIndex + 1] = b;
         triangles[_triangleIndex + 2] = c;
         _triangleIndex += 3;
+    }
+
+    public void AddHeightMap(float[,] locHeightMap)
+    {
+        heightMap = locHeightMap;
+    }
+
+    public float[,] GetHeightMap()
+    {
+        return heightMap;
+        
     }
 
     public Mesh CreateMesh()

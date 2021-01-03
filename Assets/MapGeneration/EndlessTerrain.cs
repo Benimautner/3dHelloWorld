@@ -10,8 +10,9 @@ public class EndlessTerrain : MonoBehaviour
     private static MapGenerator _mapGenerator;
     public static float maxViewDistance = 450;
     [FormerlySerializedAs("LodInfos")] public LodInfo[] lodInfos;
+    [SerializeField] public FeatureGenerator featureGenerator;
 
-    private int _chunkSize;
+    public int _chunkSize;
     public Transform viewer;
     public Material mapMaterial;
     private int _chunksVisibleInView;
@@ -80,7 +81,19 @@ public class EndlessTerrain : MonoBehaviour
 
     public class TerrainChunk
     {
+        
+        private struct Features
+        {
+            public bool _initializedTrees;
+            public Features(int ig = 0)
+            {
+                _initializedTrees = false;
+            }
+        }
 
+        private Features _features = new Features();
+        
+        private int _size;
         private Bounds _bounds;
         private MapData _mapData;
         private bool _mapDataReceived;
@@ -92,9 +105,11 @@ public class EndlessTerrain : MonoBehaviour
         private readonly LodInfo[] _detailLevels;
         private readonly MeshCollider _meshCollider;
         private readonly MeshRenderer _meshRenderer;
+        private readonly FeatureGenerator _featureGenerator;
 
         public TerrainChunk(Vector2 coord, int size, LodInfo[] detailLevels, Transform parent, Material material)
         {
+            _size = size;
             _detailLevels = detailLevels;
             _position = coord * size;
             _bounds = new Bounds(_position, Vector2.one * size);
@@ -113,6 +128,8 @@ public class EndlessTerrain : MonoBehaviour
 
             _lodMeshes = new LODMesh[detailLevels.Length];
             for (var i = 0; i < detailLevels.Length; i++) _lodMeshes[i] = new LODMesh(detailLevels[i].lod);
+
+            _featureGenerator = parent.GetComponent<FeatureGenerator>();
 
             _mapGenerator.RequestMapData(_position, OnMapDataReceived);
         }
@@ -147,8 +164,13 @@ public class EndlessTerrain : MonoBehaviour
                         _prevLodIndex = lodIndex;
                         _meshFilter.mesh = lodMesh.mesh;
                         if (_detailLevels[lodIndex].useForCollider) {
-                            print("Collision test");
                             _meshCollider.sharedMesh = lodMesh.mesh;
+                            if (!_features._initializedTrees) {
+                                _mapGenerator.RequestGameObjectData(new GameObjectThreadInfo(_featureGenerator,
+                                    lodMesh.mesh.vertices,
+                                    _size, _mapData.heightMultiplier, _mapGenerator, _position), null);
+                                _features._initializedTrees = true;
+                            }
                         }
                     }
                     else if (!lodMesh.requestedMesh) {
@@ -174,6 +196,7 @@ public class EndlessTerrain : MonoBehaviour
     public class LODMesh
     {
         public Mesh mesh;
+        public MeshData meshData;
         public bool hasMesh;
         private readonly int _lod;
         public bool requestedMesh;
@@ -183,9 +206,10 @@ public class EndlessTerrain : MonoBehaviour
             _lod = lod;
         }
 
-        private void OnMeshDataReceived(MeshData meshData)
+        private void OnMeshDataReceived(MeshData _meshData)
         {
-            mesh = meshData.CreateMesh();
+            mesh = _meshData.CreateMesh();
+            meshData = _meshData;
             hasMesh = true;
         }
 

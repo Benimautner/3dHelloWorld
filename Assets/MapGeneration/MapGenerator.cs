@@ -60,6 +60,9 @@ public class MapGenerator : MonoBehaviour
             if (_gameObjectQueue.Count > 0) {
                 for (int i = 0; i < _gameObjectQueue.Count; i++) {
                     var gameObject = _gameObjectQueue.Dequeue();
+                    //Vector3 newPos = gameObject.pos;
+                    //newPos.x -= offset.x;
+                    //newPos.z -= offset.y;
                     Instantiate(gameObject.gameObject, gameObject.pos, gameObject.quaternion);
                 }
             }
@@ -104,12 +107,23 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        List<GameObjectQueueObject> trees = featureGenerator.GenerateTrees(noiseMap, this);
+        return new MapData(noiseMap, colorMap, meshHeightMultiplier);
+    }
+
+    public void RequestGameObjectData(GameObjectThreadInfo info, Action<List<GameObject>> callback)
+    {
+        ThreadStart threadStart = delegate { GameObjectThread(info, callback); };
+        new Thread(threadStart).Start();
+    }
+
+    private void GameObjectThread(GameObjectThreadInfo info, Action<List<GameObject>> callback)
+    {
+        List<GameObjectQueueObject> trees = info.featureGenerator.GenerateTrees(info.vertices, info.size, info.heightMultiplier, info.mapGenerator, info.position - offset);
+        var newTrees = trees;
+
         lock (_gameObjectQueue) {
             trees.ForEach(tree => _gameObjectQueue.Enqueue(tree));
         }
-
-        return new MapData(noiseMap, colorMap);
     }
 
     public void RequestMapData(Vector2 center, Action<MapData> callback)
@@ -143,6 +157,6 @@ public class MapGenerator : MonoBehaviour
 
     public TerrainType GetTerrainTypeByHeight(float height)
     {
-        return regions.Find(type => type.height >= height);
+        return regions.Find(region => region.height > height);
     }
 }

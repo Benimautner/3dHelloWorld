@@ -8,16 +8,16 @@ public class FeatureGenerator : MonoBehaviour
 {
     [SerializeField] public GameObject treeTemplate;
     [SerializeField] private float chanceOfTree;
-    public List<GameObjectQueueObject> GenerateTrees(float[,] noiseMap, MapGenerator mapGenerator)
+    public List<GameObjectQueueObject> GenerateTrees(Vector3[] vertices, int size, float scale, MapGenerator mapGenerator, Vector2 offset)
     {
         List<GameObjectQueueObject> trees = new List<GameObjectQueueObject>();
         Random pRandom = new Random();
-        for (int y = 0; y < noiseMap.GetLength(0); y++) {
-            for (int x = 0; x < noiseMap.GetLength(1); x++) {
-                if (pRandom.NextDouble() <= chanceOfTree &&
-                    mapGenerator.GetTerrainTypeByHeight(noiseMap[x, y]).name.Equals("Land")) {
-                    print("instantiating");
-                    GameObjectQueueObject tree = new GameObjectQueueObject(treeTemplate, new Vector3(x, noiseMap[x, y], y));
+
+        foreach (var vertex in vertices) {
+            if (mapGenerator.GetTerrainTypeByHeight(vertex.y/scale).name.Equals("Water")) {
+                if (pRandom.NextDouble() <= chanceOfTree) {
+                    GameObjectQueueObject tree =
+                        new GameObjectQueueObject(treeTemplate, new Vector3(vertex.x + offset.x, vertex.y, vertex.z + offset.y));
                     trees.Add(tree);
                 }
             }
