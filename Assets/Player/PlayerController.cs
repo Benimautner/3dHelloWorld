@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
         characterController.Move(SpeedCoeff * Time.deltaTime * _dir);
 
-        if (Input.GetKey("e")) Application.Quit();
+        //if (Input.GetKey("e")) Application.Quit();
     }
 
     private void OnGUI()
