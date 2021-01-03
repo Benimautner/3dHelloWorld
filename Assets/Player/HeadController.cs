@@ -1,5 +1,6 @@
 ﻿using DefaultNamespace;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class HeadController : MonoBehaviour
 {
@@ -15,16 +16,30 @@ public class HeadController : MonoBehaviour
     private void Update()
     {
         if (!SharedInfo.InMenu) {
-            var movement = new Vector3(0, Input.GetAxis("Mouse X") * mouseMultiplicator,
-                Input.GetAxis("Mouse Y") * mouseMultiplicator);
+            var movement = new Vector3();
+            movement.x = 0;
+            if(Mathf.Abs(Input.GetAxis("Mouse X")) > 0.0f || Mathf.Abs(Input.GetAxis("Mouse Y")) > 0.0f) {
+                movement.y = Input.GetAxis("Mouse X") * mouseMultiplicator;
+                movement.z = Input.GetAxis("Mouse Y") * mouseMultiplicator;
+            }
 
+            print("X: " + Input.GetAxis("Joystick X"));
+            if (Mathf.Abs(Input.GetAxis("Joystick X")) > 0.4f) {
+                movement.y += Input.GetAxis("Joystick X");
+            }
+            
+            if (Mathf.Abs(Input.GetAxis("Joystick Y")) > 0.4f ) {
+                movement.z += Input.GetAxis("Joystick Y");
+            }
+            
             transform.eulerAngles += movement;
-            limitRotation();
+
+            LimitRotation();
         }
     }
 
 
-    private void limitRotation()
+    private void LimitRotation()
     {
         var loc_rotation = transform.eulerAngles;
         loc_rotation.z -= 90;

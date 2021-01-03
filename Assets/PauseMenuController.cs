@@ -21,6 +21,7 @@ public class PauseMenuController : MonoBehaviour
         resumeButton.onClick.AddListener(HideMenu);
         mainMenuButton.onClick.AddListener(BackToMenu);
         pauseMenu.SetActive(false);
+        //Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, true);
     }
 
     // Update is called once per frame

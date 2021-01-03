@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DefaultNamespace;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -27,17 +28,23 @@ public class PlayerController : MonoBehaviour
 
         _dir.x = 0;
         _dir.z = 0;
+        
+        if (Input.GetAxis("Vertical") > 0.0f) _dir += camFwd * Input.GetAxis("Vertical");
+        if (Input.GetAxis("Vertical") < 0.0f) _dir -= camFwd * -Input.GetAxis("Vertical");
+        
+        if (Input.GetAxis("Horizontal") > 0.0f) _dir += camera.transform.right * Input.GetAxis("Horizontal");
+        if (Input.GetAxis("Horizontal") < 0.0f) _dir -= camera.transform.right * -Input.GetAxis("Horizontal");
 
-        if (Input.GetKey("w")) _dir += camFwd;
-        if (Input.GetKey("s")) _dir -= camFwd;
-        if (Input.GetKey("a")) _dir += -camera.transform.right;
-        if (Input.GetKey("d")) _dir += camera.transform.right;
-
-        if (Input.GetKey("space") && characterController.isGrounded) _dir.y = Mathf.Sqrt(-Physics.gravity.y / 3);
-
-        if (gravityEnabled) _dir += Time.deltaTime * Physics.gravity / 2;
-
-        characterController.Move(SpeedCoeff * Time.deltaTime * _dir);
+        if (Input.GetAxis("Jump") > 0.0f && characterController.isGrounded) _dir.y = Mathf.Sqrt(-Physics.gravity.y / 3);
+        
+        
+        if (!SharedInfo.InMenu) {
+            if (gravityEnabled) _dir += Time.deltaTime * Physics.gravity / 2;
+            characterController.Move(SpeedCoeff * Time.deltaTime * _dir);
+        }
+        else {
+            characterController.Move(Vector3.zero);
+        }
 
         //if (Input.GetKey("e")) Application.Quit();
     }
