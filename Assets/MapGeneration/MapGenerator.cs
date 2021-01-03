@@ -12,33 +12,28 @@ public class MapGenerator : MonoBehaviour
         Mesh
     }
 
-    public FeatureGenerator featureGenerator;
-
-    public const int mapChunkSize = 241;
-
     public DrawMode drawMode;
-    
+    public const int MapChunkSize = 241;
+    public FeatureGenerator featureGenerator;
     [Range(0, 6)] public int editorLevelOfDetail;
-
+    
     public float scale = 1;
     public bool autoUpdate;
     public int octaves = 3;
     public float meshHeightMultiplier = 5;
-
     [Range(0, 1)] public float persistance = 1f;
-
-    public float lacunarity = 0.9f;
+    
     public int seed;
     public Vector2 offset;
+    public float lacunarity = 0.9f;
     public List<TerrainType> regions;
-    public ChunkProperties[] chunkPropertiesArray;
-
     public AnimationCurve meshHeightCurve;
-
+    public ChunkProperties[] chunkPropertiesArray;
+    
+    private readonly Queue<GameObjectQueueObject> _gameObjectQueue = new Queue<GameObjectQueueObject>();
     private readonly Queue<MapThreadInfo<MapData>> _mapDataThreadQueue = new Queue<MapThreadInfo<MapData>>();
     private readonly Queue<MapThreadInfo<MeshData>> _meshDataThreadQueue = new Queue<MapThreadInfo<MeshData>>();
 
-    private readonly Queue<GameObjectQueueObject> _gameObjectQueue = new Queue<GameObjectQueueObject>();
 
 
     private void Update()
@@ -87,30 +82,32 @@ public class MapGenerator : MonoBehaviour
         if (drawMode == DrawMode.NoiseMap)
             display.DrawTexture(TextureGenerator.TextureFromHeightMap(mapData.heightMap));
         else if (drawMode == DrawMode.ColorMap)
-            display.DrawTexture(TextureGenerator.TextureFromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize));
+            display.DrawTexture(TextureGenerator.TextureFromColorMap(mapData.colorMap, MapChunkSize, MapChunkSize));
         else if (drawMode == DrawMode.Mesh)
             display.DrawMesh(
                 MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve,
                     editorLevelOfDetail),
-                TextureGenerator.TextureFromColorMap(mapData.colorMap, mapChunkSize, mapChunkSize));
+                TextureGenerator.TextureFromColorMap(mapData.colorMap, MapChunkSize, MapChunkSize));
     }
 
     private MapData GenerateMapData(Vector2 center)
     {
-        var noiseMap = Noise.GeneratePerlinNoiseMap(mapChunkSize, mapChunkSize, seed, scale,
+        var noiseMap = Noise.GeneratePerlinNoiseMap(MapChunkSize, MapChunkSize, seed, scale,
             octaves, persistance, lacunarity, center + offset, Noise.NormalizeMode.Global);
 
-        var colorMap = new Color[mapChunkSize * mapChunkSize];
-        for (var y = 0; y < mapChunkSize; y++){
-            for (var x = 0; x < mapChunkSize; x++) {
+        var colorMap = new Color[MapChunkSize * MapChunkSize];
+        for (var y = 0; y < MapChunkSize; y++){
+            for (var x = 0; x < MapChunkSize; x++) {
                 var currHeight = noiseMap[x, y];
                 TerrainType currRegion = GetTerrainTypeByHeight(currHeight);
-                colorMap[y * mapChunkSize + x] = currRegion.color;
+                colorMap[y * MapChunkSize + x] = currRegion.color;
             }
         }
 
         List<GameObjectQueueObject> trees = featureGenerator.GenerateTrees(noiseMap, this);
-        trees.ForEach(tree => _gameObjectQueue.Enqueue(tree));
+        lock (_gameObjectQueue) {
+            trees.ForEach(tree => _gameObjectQueue.Enqueue(tree));
+        }
 
         return new MapData(noiseMap, colorMap);
     }
@@ -147,51 +144,5 @@ public class MapGenerator : MonoBehaviour
     public TerrainType GetTerrainTypeByHeight(float height)
     {
         return regions.Find(type => type.height >= height);
-    }
-}
-
-[Serializable]
-public struct TerrainType
-{
-    public string name;
-    public float height;
-    public Color color;
-}
-
-public struct MapData
-{
-    public float[,] heightMap;
-    public Color[] colorMap;
-
-    public MapData(float[,] heightMap, Color[] colorMap)
-    {
-        this.heightMap = heightMap;
-        this.colorMap = colorMap;
-    }
-}
-
-public struct MapThreadInfo<T>
-{
-    public readonly Action<T> callback;
-    public readonly T parameter;
-
-    public MapThreadInfo(Action<T> callback, T parameter)
-    {
-        this.callback = callback;
-        this.parameter = parameter;
-    }
-}
-
-public struct GameObjectQueueObject
-{
-    public GameObject gameObject;
-    public Vector3 pos;
-    public Quaternion quaternion;
-
-    public GameObjectQueueObject(GameObject _gameObject, Vector3 _pos, Quaternion _quat = new Quaternion())
-    {
-        gameObject = _gameObject;
-        pos = _pos;
-        quaternion = _quat;
     }
 }
