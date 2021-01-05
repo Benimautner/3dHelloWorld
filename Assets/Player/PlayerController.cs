@@ -31,10 +31,6 @@ public class PlayerController : MonoBehaviour
                 velocityY = jumpVelocity;
             }
         }
-        else {
-            input = Vector2.zero;
-        }
-        print(characterController.isGrounded);
 
         Vector2 inputDir = input.normalized;
         
