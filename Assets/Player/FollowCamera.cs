@@ -4,28 +4,27 @@ using UnityEngine;
 public class FollowCamera : MonoBehaviour
 {
     public GameObject target;
-    private Quaternion angleOffset;
-
-    private Vector3 offset;
+    private Quaternion _angleOffset;
+    private Vector3 _offset;
 
     // Start is called before the first frame update
     private void Start()
     {
-        offset = target.transform.position - transform.position + new Vector3(0.0f, 0.0f, 0.0f);
-        angleOffset = Quaternion.Euler(30, 0, 0);
+        _offset = target.transform.position - transform.position + new Vector3(0.0f, 0.0f, 0.0f);
+        _angleOffset = Quaternion.Euler(30, 0, 0);
     }
 
     // Update is called once per frame
     private void LateUpdate()
     {
         if (!SharedInfo.InMenu) {
-            var angleY = target.transform.eulerAngles.y;
-            var angleZ = target.transform.eulerAngles.z;
-            var rotation = Quaternion.Euler(0, angleY, angleZ);
-            transform.position = target.transform.position - rotation * offset;
+            Vector3 targetEulerAngles = target.transform.eulerAngles;
+            var angleY = targetEulerAngles.y;
+            var angleZ = targetEulerAngles.x;
+            var rotation = Quaternion.Euler(angleZ, angleY, 0);
+            transform.position = target.transform.position - rotation * _offset + new Vector3(0, 2, 0);
             transform.LookAt(target.transform);
-            transform.position += new Vector3(0, 2, 0);
-            transform.rotation = transform.rotation * angleOffset;
+            transform.rotation *= _angleOffset;
         }
     }
 }
