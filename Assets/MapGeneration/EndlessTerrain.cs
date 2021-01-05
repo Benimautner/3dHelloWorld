@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -131,7 +132,18 @@ public class EndlessTerrain : MonoBehaviour
 
             _featureGenerator = parent.GetComponent<FeatureGenerator>();
 
-            _mapGenerator.RequestMapData(_position, OnMapDataReceived);
+            
+            try {
+                _mapGenerator.RequestMapData(_position, OnMapDataReceived);
+            }
+            catch (Exception e) {
+                print("error map data request - exiting");
+#if UNITY_EDITOR
+                EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+            }
         }
         
 
