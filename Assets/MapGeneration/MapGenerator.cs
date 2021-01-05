@@ -60,9 +60,6 @@ public class MapGenerator : MonoBehaviour
             if (_gameObjectQueue.Count > 0) {
                 for (int i = 0; i < _gameObjectQueue.Count; i++) {
                     var gameObject = _gameObjectQueue.Dequeue();
-                    //Vector3 newPos = gameObject.pos;
-                    //newPos.x -= offset.x;
-                    //newPos.z -= offset.y;
                     Instantiate(gameObject.gameObject, gameObject.pos, gameObject.quaternion);
                 }
             }
