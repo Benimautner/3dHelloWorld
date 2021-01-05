@@ -1,15 +1,20 @@
-﻿using DefaultNamespace;
+﻿using System;
+using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
 public class HeadController : MonoBehaviour
 {
-    public float mouseMultiplicator;
+    public float mouseMultiplicator = 10;
 
+    public float maxRotation = 50;
+
+    public float minRotation = 320;
     // Start is called before the first frame update
     private void Start()
     {
         if (mouseMultiplicator == 0) mouseMultiplicator = 10;
+        transform.localEulerAngles += new Vector3(90, 0, 0);
     }
 
     // Update is called once per frame
@@ -20,10 +25,9 @@ public class HeadController : MonoBehaviour
             movement.x = 0;
             if(Mathf.Abs(Input.GetAxis("Mouse X")) > 0.0f || Mathf.Abs(Input.GetAxis("Mouse Y")) > 0.0f) {
                 movement.y = Input.GetAxis("Mouse X") * mouseMultiplicator;
-                movement.z = Input.GetAxis("Mouse Y") * mouseMultiplicator;
+                movement.x = Input.GetAxis("Mouse Y") * mouseMultiplicator;
             }
 
-            print("X: " + Input.GetAxis("Joystick X"));
             if (Mathf.Abs(Input.GetAxis("Joystick X")) > 0.4f) {
                 movement.y += Input.GetAxis("Joystick X");
             }
@@ -31,7 +35,7 @@ public class HeadController : MonoBehaviour
             if (Mathf.Abs(Input.GetAxis("Joystick Y")) > 0.4f ) {
                 movement.z += Input.GetAxis("Joystick Y");
             }
-            
+        
             transform.eulerAngles += movement;
 
             LimitRotation();
@@ -41,18 +45,58 @@ public class HeadController : MonoBehaviour
 
     private void LimitRotation()
     {
-        var loc_rotation = transform.eulerAngles;
-        loc_rotation.z -= 90;
-        loc_rotation.z = Clamp(loc_rotation.z, 10f, 170f);
-        loc_rotation.z += 90;
-        transform.eulerAngles = loc_rotation;
+        var locRotation = transform.eulerAngles;
+        
+        if (locRotation.x < 180) {
+            if (locRotation.x > maxRotation) locRotation.x = maxRotation;
+        }
+        else {
+            if (locRotation.x < minRotation) locRotation.x = minRotation;
+        }
+
+        transform.eulerAngles = locRotation;
+    }
+    
+    public static float DebugClamp(float value, float min, float max)
+    {
+        if (value > 180) return value;
+        if ((double) value < (double) min) {
+            print("clamped at min " + value);
+            value = min;
+        }else if ((double) value > (double) max) {
+            print("clamped at max " + value);
+            value = max;
+        }
+        return value;
     }
 
-    private float Clamp(float value, float min, float max)
+    // ONLY WORKING TO SOME EXTENT
+    private float ClampToClosestDegrees(float value, float min, float max)
     {
-        if (value < (double) min)
-            value = min;
-        else if (value > (double) max) value = max;
+        if (value < (double) min || value > (double) max) {
+            float distToMin = Mathf.Abs(min - value);
+            float distToMax = Mathf.Abs(max - value);
+
+            if (distToMin > 180) {
+                distToMin = 180 - distToMin;
+            }
+
+            if (distToMax > 180) {
+                distToMax = 180 - distToMax;
+            }
+            
+            print("clamped at " + value);
+            print("Dist to min: " + distToMin + " Dist to max: " + distToMax);
+            
+            if (distToMin < distToMax) {
+                value = min;
+            }
+            else {
+                value = max;
+            }
+            
+        }
+        
         return value;
     }
 }

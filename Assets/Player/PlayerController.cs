@@ -1,54 +1,66 @@
-﻿using DefaultNamespace;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private const float SpeedCoeff = 12;
 
-    // Start is called before the first frame update
-    [SerializeField] public PlayerController controller;
     [SerializeField] public CharacterController characterController;
-    [SerializeField] public Rigidbody playerBody;
-    [SerializeField] public float mouseMultiplicator;
-    [SerializeField] public new Camera camera;
     [SerializeField] public bool gravityEnabled;
-    private Vector3 _dir = Vector3.zero;
+    private Animator _animator;
+    public float smoothVelocity;
+    public float smoothTime = 0.2f;
+    
+    public float walkSpeed = 2;
+    public float runSpeed = 6;
+    private float _currentSpeed;
+    public float gravity = -12;
+    private float velocityY;
 
     private void Start()
     {
+        _animator = GetComponent<Animator>();
         characterController.Move(new Vector3(0, 50, 0));
-        //playerBody.position = new Vector3(0, 10, 0);
     }
 
-    // Update is called once per frame
-    private void Update()
+    void Update()
     {
-        var camFwd = camera.transform.forward;
-        camFwd.y = 0;
+        Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        _dir.x = 0;
-        _dir.z = 0;
-        
-        if (Input.GetAxis("Vertical") > 0.0f) _dir += camFwd * Input.GetAxis("Vertical");
-        if (Input.GetAxis("Vertical") < 0.0f) _dir -= camFwd * -Input.GetAxis("Vertical");
-        
-        if (Input.GetAxis("Horizontal") > 0.0f) _dir += camera.transform.right * Input.GetAxis("Horizontal");
-        if (Input.GetAxis("Horizontal") < 0.0f) _dir -= camera.transform.right * -Input.GetAxis("Horizontal");
-
-        if (Input.GetAxis("Jump") > 0.0f && characterController.isGrounded) _dir.y = Mathf.Sqrt(-Physics.gravity.y / 3);
-        
-        
-        if (!SharedInfo.InMenu) {
-            if (gravityEnabled) _dir += Time.deltaTime * Physics.gravity / 2;
-            characterController.Move(SpeedCoeff * Time.deltaTime * _dir);
+        if (characterController.isGrounded) {
+            if (Input.GetButtonDown("Jump")) {
+                float jumpVelocity = Mathf.Sqrt(-2 * gravity * 2);
+                velocityY = jumpVelocity;
+            }
         }
         else {
-            characterController.Move(Vector3.zero);
+            input = Vector2.zero;
         }
+        print(characterController.isGrounded);
 
-        //if (Input.GetKey("e")) Application.Quit();
+        Vector2 inputDir = input.normalized;
+        
+        if (inputDir != Vector2.zero) {
+            transform.eulerAngles += Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg * Vector3.up / 50.0f;
+        }
+        bool running = Input.GetKey(KeyCode.LeftShift);
+        float targetSpeed = ((running) ? runSpeed : walkSpeed) * inputDir.magnitude;
+        _currentSpeed = Mathf.SmoothDamp(_currentSpeed, targetSpeed, ref smoothVelocity, smoothTime);
+
+        
+        if(gravityEnabled) velocityY += Time.deltaTime * gravity;
+
+
+        Vector3 vel = transform.forward * _currentSpeed + Vector3.up * velocityY;
+        characterController.Move(vel * Time.deltaTime);
+        _currentSpeed = new Vector2(characterController.velocity.x, characterController.velocity.z).magnitude;
+        if (characterController.isGrounded) {
+            velocityY = 0;
+        }
+        
+        float animationSpeedPercent = ((running) ? _currentSpeed/runSpeed : _currentSpeed/walkSpeed* .5f);
+        _animator.SetFloat("speedPercent", animationSpeedPercent,smoothTime, Time.deltaTime);
+        
     }
-
+    
     private void OnGUI()
     {
         GUI.Label(new Rect(0, 0, 1000, 1000), ((int) (1.0f / Time.smoothDeltaTime)).ToString());
