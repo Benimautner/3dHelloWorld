@@ -84,9 +84,10 @@ public struct GameObjectThreadInfo
     public float heightMultiplier;
     public MapGenerator mapGenerator;
     public Vector2 position;
+    public MeshData meshData;
 
     public GameObjectThreadInfo(FeatureGenerator featureGenerator, Vector3[] vertices, int size, float heightMultiplier,
-        MapGenerator mapGenerator, Vector2 position)
+        MapGenerator mapGenerator, Vector2 position, MeshData meshData)
     {
         this.featureGenerator = featureGenerator;
         this.vertices = vertices;
@@ -94,5 +95,6 @@ public struct GameObjectThreadInfo
         this.heightMultiplier = heightMultiplier;
         this.mapGenerator = mapGenerator;
         this.position = position;
+        this.meshData = meshData;
     }
 }

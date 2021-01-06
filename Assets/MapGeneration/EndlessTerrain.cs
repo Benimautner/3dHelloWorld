@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using UnityEditor;
 using UnityEngine;
@@ -137,6 +138,7 @@ public class EndlessTerrain : MonoBehaviour
                 _mapGenerator.RequestMapData(_position, OnMapDataReceived);
             }
             catch (Exception e) {
+                print(e);
                 print("error map data request - exiting");
 #if UNITY_EDITOR
                 EditorApplication.isPlaying = false;
@@ -180,7 +182,7 @@ public class EndlessTerrain : MonoBehaviour
                             if (!_features._initializedTrees) {
                                 _mapGenerator.RequestGameObjectData(new GameObjectThreadInfo(_featureGenerator,
                                     lodMesh.mesh.vertices,
-                                    _size, _mapData.heightMultiplier, _mapGenerator, _position), null);
+                                    _size, _mapData.heightMultiplier, _mapGenerator, _position, lodMesh.meshData), null);
                                 _features._initializedTrees = true;
                             }
                         }

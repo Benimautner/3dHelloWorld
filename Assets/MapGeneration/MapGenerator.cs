@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using DefaultNamespace;
+using UnityEditor;
 using UnityEngine;
 
 public class MapGenerator : MonoBehaviour
@@ -34,7 +36,18 @@ public class MapGenerator : MonoBehaviour
     private readonly Queue<MapThreadInfo<MapData>> _mapDataThreadQueue = new Queue<MapThreadInfo<MapData>>();
     private readonly Queue<MapThreadInfo<MeshData>> _meshDataThreadQueue = new Queue<MapThreadInfo<MeshData>>();
 
+    private void Start()
+    {
+        SharedInfo.terrainHeightCurve = meshHeightCurve;
+        var inverseCurve = new AnimationCurve();
+        for (int i = 0; i < meshHeightCurve.length; i++) {
+            Keyframe inverseKey = new Keyframe(meshHeightCurve.keys[i].value, meshHeightCurve.keys[i].time);
+            inverseCurve.AddKey(inverseKey);
+        }
 
+        SharedInfo.inverseHeightCurve = inverseCurve;
+        
+    }
 
     private void Update()
     {
@@ -115,7 +128,7 @@ public class MapGenerator : MonoBehaviour
 
     private void GameObjectThread(GameObjectThreadInfo info, Action<List<GameObject>> callback)
     {
-        List<GameObjectQueueObject> trees = info.featureGenerator.GenerateTrees(info.vertices, info.size, info.heightMultiplier, info.mapGenerator, info.position - offset);
+        List<GameObjectQueueObject> trees = info.featureGenerator.GenerateTrees(info.vertices, info.mapGenerator, info.position - offset, info.meshData);
         var newTrees = trees;
 
         lock (_gameObjectQueue) {
@@ -154,6 +167,6 @@ public class MapGenerator : MonoBehaviour
 
     public TerrainType GetTerrainTypeByHeight(float height)
     {
-        return regions.Find(region => region.height > height);
+        return regions.Find(region => region.height >= height);
     }
 }
