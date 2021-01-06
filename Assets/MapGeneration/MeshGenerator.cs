@@ -19,7 +19,6 @@ public static class MeshGenerator
 
         var meshData = new MeshData(verticesPerLine, verticesPerLine);
         var vertexIndex = 0;
-        var waterVertexIndex = 0;
         for (var y = 0; y < height; y += meshIncrement){
             for (var x = 0; x < width; x += meshIncrement) {
                 float yHeight = heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
