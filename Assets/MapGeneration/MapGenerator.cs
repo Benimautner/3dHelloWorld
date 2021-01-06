@@ -99,7 +99,7 @@ public class MapGenerator : MonoBehaviour
         else if (drawMode == DrawMode.Mesh)
             display.DrawMesh(
                 MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve,
-                    editorLevelOfDetail),
+                    editorLevelOfDetail, regions),
                 TextureGenerator.TextureFromColorMap(mapData.colorMap, MapChunkSize, MapChunkSize));
     }
 
@@ -159,7 +159,7 @@ public class MapGenerator : MonoBehaviour
     private void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
     {
         var meshData =
-            MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod);
+            MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod, regions);
         lock (_meshDataThreadQueue) {
             _meshDataThreadQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
         }

@@ -17,7 +17,8 @@ public class EndlessTerrain : MonoBehaviour
     public int _chunkSize;
     public Transform viewer;
     public Material mapMaterial;
-    private int _chunksVisibleInView;
+    public Material waterMaterial;
+    private int _chunksVisibleInView; 
     private readonly List<TerrainChunk> _terrainChunksVisible = new List<TerrainChunk>();
     private readonly Dictionary<Vector2, TerrainChunk> _terrainChunks = new Dictionary<Vector2, TerrainChunk>();
 
@@ -54,7 +55,7 @@ public class EndlessTerrain : MonoBehaviour
                 }
                 else {
                     _terrainChunks.Add(viewedChunkCoord,
-                        new TerrainChunk(viewedChunkCoord, _chunkSize, lodInfos, transform, mapMaterial));
+                        new TerrainChunk(viewedChunkCoord, _chunkSize, lodInfos, transform, mapMaterial, waterMaterial));
                 }
         }
     }
@@ -109,7 +110,9 @@ public class EndlessTerrain : MonoBehaviour
         private readonly MeshRenderer _meshRenderer;
         private readonly FeatureGenerator _featureGenerator;
 
-        public TerrainChunk(Vector2 coord, int size, LodInfo[] detailLevels, Transform parent, Material material)
+        private Material _waterMaterial;
+
+        public TerrainChunk(Vector2 coord, int size, LodInfo[] detailLevels, Transform parent, Material material, Material waterMaterial)
         {
             _size = size;
             _detailLevels = detailLevels;
@@ -133,6 +136,7 @@ public class EndlessTerrain : MonoBehaviour
 
             _featureGenerator = parent.GetComponent<FeatureGenerator>();
 
+            _waterMaterial = waterMaterial;
             
             try {
                 _mapGenerator.RequestMapData(_position, OnMapDataReceived);
@@ -185,6 +189,20 @@ public class EndlessTerrain : MonoBehaviour
                                     _size, _mapData.heightMultiplier, _mapGenerator, _position, lodMesh.meshData), null);
                                 _features._initializedTrees = true;
                             }
+                            
+                            GameObject water = new GameObject("Water Chunk");
+                            var positionV3 = new Vector3(_position.x, 0, _position.y);
+                            water.transform.position = positionV3;
+            
+                            MeshRenderer waterRenderer = water.AddComponent<MeshRenderer>();
+                            MeshFilter waterFilter = water.AddComponent<MeshFilter>();
+                            MeshCollider waterCollider = water.AddComponent<MeshCollider>();
+                            
+                            waterFilter.sharedMesh = lodMesh.meshData.CreateWaterMesh();
+                            waterRenderer.sharedMaterial = _waterMaterial;
+                            waterCollider.sharedMesh = waterFilter.sharedMesh;
+                            water.layer = 4;
+
                         }
                     }
                     else if (!lodMesh.requestedMesh) {

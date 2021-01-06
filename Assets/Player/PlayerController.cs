@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -13,7 +14,9 @@ public class PlayerController : MonoBehaviour
     public float runSpeed = 6;
     private float _currentSpeed;
     public float gravity = -12;
-    private float velocityY;
+    private float _velocityY;
+
+    private bool _inWater;
 
     private void Start()
     {
@@ -28,7 +31,7 @@ public class PlayerController : MonoBehaviour
         if (characterController.isGrounded) {
             if (Input.GetButtonDown("Jump")) {
                 float jumpVelocity = Mathf.Sqrt(-2 * gravity * 2);
-                velocityY = jumpVelocity;
+                _velocityY = jumpVelocity;
             }
         }
 
@@ -37,26 +40,30 @@ public class PlayerController : MonoBehaviour
         if (inputDir != Vector2.zero) {
             transform.eulerAngles += Mathf.Atan2(inputDir.x, inputDir.y) * Mathf.Rad2Deg * Vector3.up / 50.0f;
         }
-        bool running = Input.GetKey(KeyCode.LeftShift);
+        bool running = Input.GetKey(KeyCode.LeftShift) && !_inWater;
         float targetSpeed = ((running) ? runSpeed : walkSpeed) * inputDir.magnitude;
         _currentSpeed = Mathf.SmoothDamp(_currentSpeed, targetSpeed, ref smoothVelocity, smoothTime);
 
         
-        if(gravityEnabled) velocityY += Time.deltaTime * gravity;
+        if(gravityEnabled) _velocityY += Time.deltaTime * gravity;
 
 
-        Vector3 vel = transform.forward * _currentSpeed + Vector3.up * velocityY;
+        Vector3 vel = transform.forward * _currentSpeed + Vector3.up * _velocityY;
         characterController.Move(vel * Time.deltaTime);
         _currentSpeed = new Vector2(characterController.velocity.x, characterController.velocity.z).magnitude;
         if (characterController.isGrounded) {
-            velocityY = 0;
+            _velocityY = 0;
         }
         
         float animationSpeedPercent = ((running) ? _currentSpeed/runSpeed : _currentSpeed/walkSpeed* .5f);
         _animator.SetFloat("speedPercent", animationSpeedPercent,smoothTime, Time.deltaTime);
-        
     }
-    
+
+    public void InWater(bool status)
+    {
+        _inWater = status;
+    }
+
     private void OnGUI()
     {
         GUI.Label(new Rect(0, 0, 1000, 1000), ((int) (1.0f / Time.smoothDeltaTime)).ToString());
