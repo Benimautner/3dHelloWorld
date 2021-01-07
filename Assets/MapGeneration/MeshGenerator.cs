@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using DefaultNamespace;
 using UnityEngine;
 
 public static class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve locHeightCurve,
-        int levelOfDetail, List<TerrainType> regions)
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier,
+        int levelOfDetail)
     {
-        var heightCurve = new AnimationCurve(locHeightCurve.keys);
+        var heightCurve = new AnimationCurve(SharedInfo.chunkPropertiesList.Find(n => n.name.Equals("Land")).curve.keys);
         var width = heightMap.GetLength(0);
         var height = heightMap.GetLength(1);
         var topLeftX = (width - 1) / -2f;
@@ -34,7 +35,7 @@ public static class MeshGenerator
             }
         }
 
-        var waterHeight = heightCurve.Evaluate(regions.Find(region => region.name == "Water").height) * heightMultiplier;
+        var waterHeight = heightCurve.Evaluate(SharedInfo.chunkPropertiesList.Find(region => region.name.Equals("Land")).terrainType.Find(n => n.name.Equals("T_Water")).height) * heightMultiplier;
         
         meshData.waterVertices[0] = new Vector3(topLeftX, waterHeight, topLeftZ);
         meshData.waterVertices[1] = new Vector3(topLeftX + width, waterHeight, topLeftZ);

@@ -4,6 +4,7 @@ using System.Threading;
 using DefaultNamespace;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -28,25 +29,45 @@ public class MapGenerator : MonoBehaviour
     public int seed;
     public Vector2 offset;
     public float lacunarity = 0.9f;
-    public List<TerrainType> regions;
-    public AnimationCurve meshHeightCurve;
-    public ChunkProperties[] chunkPropertiesArray;
-    
+    //public List<TerrainType> regions;
+    //public AnimationCurve meshHeightCurve;
+    [FormerlySerializedAs("chunkPropertiesList")] public List<ChunkProperties> locChunkPropertiesList;
     private readonly Queue<GameObjectQueueObject> _gameObjectQueue = new Queue<GameObjectQueueObject>();
     private readonly Queue<MapThreadInfo<MapData>> _mapDataThreadQueue = new Queue<MapThreadInfo<MapData>>();
     private readonly Queue<MapThreadInfo<MeshData>> _meshDataThreadQueue = new Queue<MapThreadInfo<MeshData>>();
 
     private void Start()
     {
-        SharedInfo.terrainHeightCurve = meshHeightCurve;
-        var inverseCurve = new AnimationCurve();
-        for (int i = 0; i < meshHeightCurve.length; i++) {
-            Keyframe inverseKey = new Keyframe(meshHeightCurve.keys[i].value, meshHeightCurve.keys[i].time);
-            inverseCurve.AddKey(inverseKey);
+        SharedInfo.chunkPropertiesList = locChunkPropertiesList;
+
+        List<ChunkProperties> cpl = SharedInfo.chunkPropertiesList;
+
+        for (int ctr = 0; ctr < locChunkPropertiesList.Count; ctr++) {
+            ChunkProperties chunkProperty = locChunkPropertiesList[ctr];
+            var inverseCurve = new AnimationCurve();
+            for (int j = 0; j < chunkProperty.curve.length; j++) {
+                Keyframe inverseKey = new Keyframe(chunkProperty.curve.keys[j].value, chunkProperty.curve.keys[j].time);
+                inverseCurve.AddKey(inverseKey);
+            }
+            ChunkProperties x = SharedInfo.chunkPropertiesList[ctr];
+            x.invertedCurve = (inverseCurve);
+            SharedInfo.chunkPropertiesList[ctr] = x;
         }
 
-        SharedInfo.inverseHeightCurve = inverseCurve;
-        
+
+        for (int i = 0; i < cpl.Count; i++) {
+            var meshHeightCurve = cpl[i].curve;
+            var inverseCurve = new AnimationCurve();
+            
+            for (int j = 0; j < meshHeightCurve.length; j++) {
+                Keyframe inverseKey = new Keyframe(meshHeightCurve.keys[j].value, meshHeightCurve.keys[j].time);
+                inverseCurve.AddKey(inverseKey);
+            }
+            SharedInfo.chunkPropertiesList[i].setInvertedCurve(inverseCurve);
+            locChunkPropertiesList[i].setInvertedCurve(inverseCurve);
+        }
+        //print(SharedInfo.chunkPropertiesList[1].invertedCurve.GetHashCode());
+
     }
 
     private void Update()
@@ -98,8 +119,8 @@ public class MapGenerator : MonoBehaviour
             display.DrawTexture(TextureGenerator.TextureFromColorMap(mapData.colorMap, MapChunkSize, MapChunkSize));
         else if (drawMode == DrawMode.Mesh)
             display.DrawMesh(
-                MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve,
-                    editorLevelOfDetail, regions),
+                MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier,
+                    editorLevelOfDetail),
                 TextureGenerator.TextureFromColorMap(mapData.colorMap, MapChunkSize, MapChunkSize));
     }
 
@@ -112,7 +133,7 @@ public class MapGenerator : MonoBehaviour
         for (var y = 0; y < MapChunkSize; y++){
             for (var x = 0; x < MapChunkSize; x++) {
                 var currHeight = noiseMap[x, y];
-                TerrainType currRegion = GetTerrainTypeByHeight(currHeight);
+                TerrainType currRegion = GetTerrainTypeByHeight(currHeight, SharedInfo.chunkPropertiesList.Find(n => n.name.Equals("Land")));
                 colorMap[y * MapChunkSize + x] = currRegion.color;
             }
         }
@@ -159,14 +180,14 @@ public class MapGenerator : MonoBehaviour
     private void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
     {
         var meshData =
-            MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod, regions);
+            MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, lod);
         lock (_meshDataThreadQueue) {
             _meshDataThreadQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
         }
     }
 
-    public TerrainType GetTerrainTypeByHeight(float height)
+    public TerrainType GetTerrainTypeByHeight(float height, ChunkProperties type)
     {
-        return regions.Find(region => region.height >= height);
+        return SharedInfo.chunkPropertiesList.Find(n => n.name.Equals(type.name)).terrainType.Find(region => region.height >= height);
     }
 }

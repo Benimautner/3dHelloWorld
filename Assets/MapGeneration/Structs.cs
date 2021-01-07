@@ -19,6 +19,9 @@ public struct TerrainType
     public float height;
 }
 
+[Serializable]
+
+
 public struct MapData
 {
     public Color[] colorMap;
@@ -67,6 +70,22 @@ public struct ChunkProperties
     public int octaves;
     public float lacunarity;
     public float persistance;
+    public AnimationCurve curve;
+    public AnimationCurve invertedCurve;
+    public List<TerrainType> terrainType;
+
+    public void setInvertedCurve(AnimationCurve a)
+    {
+        invertedCurve = a;
+    }
+}
+
+public enum ChunkPropertiesType
+{
+    Water,
+    Land,
+    Desert,
+    Mountains
 }
 
 [Serializable]
@@ -74,7 +93,6 @@ public struct WorldProperties
 {
     public int seed;
 }
-
 
 public struct GameObjectThreadInfo
 {
