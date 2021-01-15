@@ -4,24 +4,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public struct LodInfo
-{
-    public int lod;
-    public bool useForCollider;
-    public float visibleDstThreshold;
-}
-
-[Serializable]
 public struct TerrainType
 {
     public string name;
-    public Color color;
-    public float height;
+    public float minHeight;
+    public float maxHeight;
+    public bool trees;
+}
+
+public enum IslandType
+{
+    Water,
+    Land,
+    Desert,
+    Mountains
 }
 
 [Serializable]
-
-
 public struct MapData
 {
     public Color[] colorMap;
@@ -36,19 +35,48 @@ public struct MapData
     }
 }
 
-public struct MapThreadInfo<T>
-{
-    public readonly T parameter;
-    public readonly Action<T> callback;
 
-    public MapThreadInfo(Action<T> callback, T parameter)
+[Serializable]
+public struct ChunkProperties
+{
+    public string name;
+    public IslandType islandType;
+    public AnimationCurve curve;
+    public AnimationCurve invertedCurve;
+    public List<TerrainType> terrainType;
+    public AnimationCurve dropoffCurve;
+
+    public void SetInvertedCurve(AnimationCurve a)
     {
-        this.callback = callback;
-        this.parameter = parameter;
+        invertedCurve = a;
     }
 }
 
-public struct GameObjectQueueObject
+
+[Serializable]
+public struct WorldProperties
+{
+    public int seed;
+}
+
+/*
+ [Serializable]
+public struct LodInfo
+{
+    public int lod;
+    public bool useForCollider;
+    public float visibleDstThreshold;
+}
+
+ public enum ChunkPropertiesType
+{
+    Water,
+    Land,
+    Desert,
+    Mountains
+}
+
+ public struct GameObjectQueueObject
 {
     public Vector3 pos;
     public Quaternion quaternion;
@@ -62,37 +90,19 @@ public struct GameObjectQueueObject
     }
 }
 
-[Serializable]
-public struct ChunkProperties
-{
-    public string name;
-    public float scale;
-    public int octaves;
-    public float lacunarity;
-    public float persistance;
-    public AnimationCurve curve;
-    public AnimationCurve invertedCurve;
-    public List<TerrainType> terrainType;
 
-    public void setInvertedCurve(AnimationCurve a)
+ public struct MapThreadInfo<T>
+{
+    public readonly T parameter;
+    public readonly Action<T> callback;
+
+    public MapThreadInfo(Action<T> callback, T parameter)
     {
-        invertedCurve = a;
+        this.callback = callback;
+        this.parameter = parameter;
     }
 }
 
-public enum ChunkPropertiesType
-{
-    Water,
-    Land,
-    Desert,
-    Mountains
-}
-
-[Serializable]
-public struct WorldProperties
-{
-    public int seed;
-}
 
 public struct GameObjectThreadInfo
 {
@@ -116,3 +126,4 @@ public struct GameObjectThreadInfo
         this.meshData = meshData;
     }
 }
+*/
