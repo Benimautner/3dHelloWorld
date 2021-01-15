@@ -28,6 +28,9 @@ public class MissionManager : MonoBehaviour
     private void Start()
     {
         missions = LoadJson();
+        if (missions.Count == 0) {
+            gameObject.SetActive(false);
+        }
         _target = missions[0];
         beacon.transform.position = new Vector3(_target.x, 0, _target.y);
     }
@@ -60,39 +63,47 @@ public class MissionManager : MonoBehaviour
         
         print(Application.streamingAssetsPath);
 
-        if (File.Exists(Application.streamingAssetsPath + "/missions.save")) {
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.OpenRead(Application.streamingAssetsPath + "/missions.save"); 
-            GameInfo a = JsonUtility.FromJson<GameInfo>(file.ToString());
-            print(a);
-        }
-        else {
-            
-            //FileStream fs = File.Create(Application.streamingAssetsPath + "/missions.save");
+        var filePath = Path.Combine(Application.streamingAssetsPath + "/missions.save");
+
+        if (!File.Exists(filePath)) {
+            FileStream fs = File.Create(filePath);
+            StreamWriter streamWriter = new StreamWriter(fs);
             GameInfo gameInfo = new GameInfo();
             gameInfo.missions = new Dictionary<string, Tuple<float, float>>();
             gameInfo.missions.Add("first", new Tuple<float, float>(50, 50));
             gameInfo.missions.Add("second", new Tuple<float, float>(70, 50));
             gameInfo.missions.Add("third", new Tuple<float, float>(0, 0));
             gameInfo.missions.Add("fourth", new Tuple<float, float>(-30, -40));
-
-
+            
             string json = Json.Serialize(gameInfo.missions);
-            //print("json: " + json);
-
-            var newGameInfo = Json.Deserialize(json) as Dictionary<string, object>;
-            if (newGameInfo == null) return new List<Vector2>();
-            foreach (var obj in newGameInfo) {
-                Tuple<float, float> tuple = ParseStringToTuple(obj.Value.ToString());
-                Vector2 newVec = new Vector2(tuple.Item1, tuple.Item2);
-                returnVecs.Add(newVec);
-            }
-
+            streamWriter.Write(json);
+            streamWriter.Close();
+            fs.Close();
         }
-
+        returnVecs = SplitJsonString(filePath);
+        print("count: " + returnVecs.Count);
         return returnVecs;
     }
 
+    private List<Vector2> SplitJsonString(string filePath)
+    {
+        var returnVectors = new List<Vector2>();
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.OpenRead(filePath);
+        StreamReader streamReader = new StreamReader(file);
+        var newGameInfo = Json.Deserialize(streamReader.ReadToEnd()) as Dictionary<string, object>;
+        if (newGameInfo == null) return new List<Vector2>();
+        foreach (var obj in newGameInfo) {
+            Tuple<float, float> tuple = ParseStringToTuple(obj.Value.ToString());
+            Vector2 newVec = new Vector2(tuple.Item1, tuple.Item2);
+            returnVectors.Add(newVec);
+            print("Tuple: " + tuple.ToString());
+        }
+
+        return returnVectors;
+    }
+    
+    
     private Tuple<float, float> ParseStringToTuple(string inString)
     {
         var charList = new List<char>(inString.ToCharArray());
