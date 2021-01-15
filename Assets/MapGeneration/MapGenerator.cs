@@ -33,9 +33,11 @@ public class MapGenerator : MonoBehaviour
 
     [FormerlySerializedAs("chunkPropertiesList")]
     public List<ChunkProperties> locChunkPropertiesList;
+    public GameObject water;
     
     private void Start()
     {
+        SharedInfo.waterHeight = water.transform.position.y;
         SharedInfo.chunkPropertiesList = locChunkPropertiesList;
 
         List<ChunkProperties> cpl = SharedInfo.chunkPropertiesList;
