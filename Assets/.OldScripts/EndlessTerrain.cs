@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using DefaultNamespace;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -109,6 +110,7 @@ public class EndlessTerrain : MonoBehaviour
         private readonly MeshCollider _meshCollider;
         private readonly MeshRenderer _meshRenderer;
         private readonly FeatureGenerator _featureGenerator;
+        private readonly Terrain _terrain;
 
         private Material _waterMaterial;
 
@@ -158,9 +160,9 @@ public class EndlessTerrain : MonoBehaviour
             _mapData = mapData;
             _mapDataReceived = true;
 
-            var texture = TextureGenerator.TextureFromColorMap(mapData.colorMap, MapGenerator.MapChunkSize,
-                MapGenerator.MapChunkSize);
-            _meshRenderer.material.mainTexture = texture;
+            var texture = SharedInfo.chunkPropertiesList.Find(n => n.name.Equals("Land")).terrainType
+                .Find(n => n.name.Equals("T_Land")).texture;
+            _terrain.terrainData.SetHeights(0, 0, _mapData.heightMap);
         }
         
 
@@ -216,12 +218,12 @@ public class EndlessTerrain : MonoBehaviour
 
         public void SetVisible(bool val)
         {
-            _meshObject.SetActive(val);
+            _meshObject.gameObject.SetActive(val);
         }
 
         public bool IsVisible()
         {
-            return _meshObject.activeSelf;
+            return _meshObject.gameObject.activeSelf;
         }
     }
 
