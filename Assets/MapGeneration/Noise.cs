@@ -36,37 +36,39 @@ public static class Noise
         var halfHeight = mapHeight / 2f;
 
 
-        for (var y = 0; y < mapHeight; y++)
-        for (var x = 0; x < mapWidth; x++) {
-            amplitude = 1;
-            frequency = 1;
-            float noiseHeight = 0;
+        for (var y = 0; y < mapHeight; y++) {
+            for (var x = 0; x < mapWidth; x++) {
+                amplitude = 1;
+                frequency = 1;
+                float noiseHeight = 0;
 
-            for (var i = 0; i < octaves; i++) {
-                var sampleX = (x - halfWidth + octaveOffset[i].x) / scale * frequency;
-                var sampleZ = (y - halfHeight + octaveOffset[i].y) / scale * frequency;
-                var perlinNoise = Mathf.PerlinNoise(sampleX, sampleZ) * 2 - 1;
-                noiseHeight += perlinNoise * amplitude;
-                amplitude *= persistance;
-                frequency *= lacunarity;
+                for (var i = 0; i < octaves; i++) {
+                    var sampleX = (x - halfWidth + octaveOffset[i].x) / scale * frequency;
+                    var sampleZ = (y - halfHeight + octaveOffset[i].y) / scale * frequency;
+                    var perlinNoise = Mathf.PerlinNoise(sampleX, sampleZ) * 2 - 1;
+                    noiseHeight += perlinNoise * amplitude;
+                    amplitude *= persistance;
+                    frequency *= lacunarity;
+                }
+
+                if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
+                else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
+                noiseMap[x, y] = noiseHeight;
             }
-
-            if (noiseHeight > maxNoiseHeight) maxNoiseHeight = noiseHeight;
-            else if (noiseHeight < minNoiseHeight) minNoiseHeight = noiseHeight;
-            noiseMap[x, y] = noiseHeight;
         }
 
 
-        for (var y = 0; y < mapHeight; y++)
-        for (var x = 0; x < mapWidth; x++)
-            switch (normalizeMode) {
-                case NormalizeMode.Local:
-                    noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
-                    break;
-                case NormalizeMode.Global:
-                    noiseMap[x, y] = (noiseMap[x, y] + 1) / (2f * maxPossibleHeight / 1.1f);
-                    break;
-            }
+        for (var y = 0; y < mapHeight; y++) {
+            for (var x = 0; x < mapWidth; x++)
+                switch (normalizeMode) {
+                    case NormalizeMode.Local:
+                        noiseMap[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, noiseMap[x, y]);
+                        break;
+                    case NormalizeMode.Global:
+                        noiseMap[x, y] = (noiseMap[x, y] + 1) / (2f * maxPossibleHeight / 1.1f);
+                        break;
+                }
+        }
         return noiseMap;
     }
 }

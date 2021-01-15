@@ -9,17 +9,15 @@ public class FeatureGenerator : MonoBehaviour
 {
     [SerializeField] public GameObject treeTemplate;
     [SerializeField] private float chanceOfTree;
-    public List<GameObjectQueueObject> GenerateTrees(Vector3[] vertices, MapGenerator mapGenerator, Vector2 offset, MeshData meshData)
+    /*public List<GameObjectQueueObject> GenerateTrees(Vector3[] vertices, MapGenerator mapGenerator, Vector2 offset, ChunkProperties chunkProperties)
     {
         List<GameObjectQueueObject> trees = new List<GameObjectQueueObject>();
         Random pRandom = new Random();
-        //print(SharedInfo.chunkPropertiesList.Find(n=> n.name.Equals("Land")).invertedCurve.Evaluate(0.5f));
-        foreach (var vertex in vertices) { 
-            float scaledHeight = SharedInfo.chunkPropertiesList.Find(n=> n.name.Equals("Land")).invertedCurve.Evaluate(vertex.y/meshData.heightMultiplier);
-            
-            string terrName = mapGenerator.GetTerrainTypeByHeight(scaledHeight, SharedInfo.chunkPropertiesList.Find(n => n.name.Equals("Land"))).name;
+        foreach (var vertex in vertices) {
+            var scaledHeight = chunkProperties.invertedCurve.Evaluate(vertex.y/chunkProperties.scale);
+            string terrName = GetTerrainTypeByHeight(scaledHeight, SharedInfo.chunkPropertiesList.Find(n => n.name.Equals("Land"))).name;
             if (terrName == null) { continue; }
-                
+            
             if (terrName.Equals("T_Land")) {
                 if (pRandom.NextDouble() <= chanceOfTree) {
                     GameObjectQueueObject tree =
@@ -29,5 +27,21 @@ public class FeatureGenerator : MonoBehaviour
             }
         }
         return trees;
+    }*/
+
+    public List<GameObject> GenerateTrees(TerrainData terrainData)
+    {
+        List<GameObject> trees = new List<GameObject>();
+
+        for (int y = 0; y < terrainData.alphamapHeight; y++) {
+            for (int x = 0; x < terrainData.alphamapWidth; x++) {
+            }
+        }
+
+
+        return trees;
     }
+    
+    
+    
 }
