@@ -71,32 +71,6 @@ public class HeadController : MonoBehaviour
     }
 
     // ONLY WORKING TO SOME EXTENT
-    private float ClampToClosestDegrees(float value, float min, float max)
-    {
-        if (value < (double) min || value > (double) max) {
-            float distToMin = Mathf.Abs(min - value);
-            float distToMax = Mathf.Abs(max - value);
 
-            if (distToMin > 180) {
-                distToMin = 180 - distToMin;
-            }
-
-            if (distToMax > 180) {
-                distToMax = 180 - distToMax;
-            }
-            
-            print("clamped at " + value);
-            print("Dist to min: " + distToMin + " Dist to max: " + distToMax);
-            
-            if (distToMin < distToMax) {
-                value = min;
-            }
-            else {
-                value = max;
-            }
-            
-        }
         
-        return value;
-    }
 }
