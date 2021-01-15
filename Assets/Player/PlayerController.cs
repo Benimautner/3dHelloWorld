@@ -1,4 +1,5 @@
 ﻿using System;
+using DefaultNamespace;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -28,10 +29,18 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 
-        if (characterController.isGrounded) {
-            if (Input.GetButtonDown("Jump")) {
+        bool goingUpInWater = false;
+        if (Input.GetButtonDown("Jump")) {
+            if (characterController.isGrounded && !_inWater) {
                 float jumpVelocity = Mathf.Sqrt(-2 * gravity * 2);
                 _velocityY = jumpVelocity;
+            }
+        }
+
+        if (Input.GetButton("Jump")) {
+            if (_inWater && transform.position.y + characterController.center.y * 2 < SharedInfo.waterHeight) {
+                goingUpInWater = true;
+                _velocityY = 2;
             }
         }
 
@@ -44,9 +53,17 @@ public class PlayerController : MonoBehaviour
         float targetSpeed = ((running) ? runSpeed : walkSpeed) * inputDir.magnitude;
         _currentSpeed = Mathf.SmoothDamp(_currentSpeed, targetSpeed, ref smoothVelocity, smoothTime);
 
-        
-        if(gravityEnabled) _velocityY += Time.deltaTime * gravity;
 
+        
+        if(gravityEnabled && !_inWater) _velocityY += Time.deltaTime * gravity;
+        
+        if (_inWater) {
+            if(!goingUpInWater) _velocityY += Time.deltaTime * gravity * 0.6f;
+            if (!goingUpInWater && transform.position.y + characterController.center.y * 3 < SharedInfo.waterHeight) _velocityY = 0;
+//            float underwater = SharedInfo.waterHeight - (characterController.center.y - characterController.height)/20;
+//            _velocityY += underwater * 0.5f;
+            //_velocityY *= 0.95f;
+        }
 
         Vector3 vel = transform.forward * _currentSpeed + Vector3.up * _velocityY;
         characterController.Move(vel * Time.deltaTime);
