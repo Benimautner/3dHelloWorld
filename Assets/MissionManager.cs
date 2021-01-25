@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Web.UI;
 using MiniJSON;
+using UnityEngine.UI;
 
 public class MissionManager : MonoBehaviour
 {
@@ -22,8 +23,10 @@ public class MissionManager : MonoBehaviour
     private Vector2 _target;
     private int _currentMission;
     public GameObject beacon;
-
+    public GameObject treasure;
     public List<Vector2> missions;
+    private int _score = 0;
+    public Text scoreTextField;
 
     private void Start()
     {
@@ -32,26 +35,34 @@ public class MissionManager : MonoBehaviour
             gameObject.SetActive(false);
         }
         _target = missions[0];
-        beacon.transform.position = new Vector3(_target.x, 0, _target.y);
+        PlaceNewTarget();
     }
 
     private void Update()
     {
-        Vector3 playerPos = player.transform.position;
+        if (treasure.transform.position.y == 0) PlaceNewTarget();
+            Vector3 playerPos = player.transform.position;
         if (Vector2.Distance(_target, new Vector2(playerPos.x, playerPos.z)) < 5.0f) {
             _currentMission++;
-            if (_currentMission > missions.Count - 1)
-                _currentMission = 0;
+            _score++;
+            if (_currentMission > missions.Count - 1) _currentMission = 0;
             _target = missions[_currentMission];
-            beacon.transform.position = new Vector3(_target.x, 0, _target.y);
+            PlaceNewTarget();
         }
-        Vector3 dir = (new Vector3(_target.x, 0, _target.y)) - (playerPos);
-
-        float x = Vector2.SignedAngle(Vector3ToVector2Horizontal(dir), Vector3ToVector2Horizontal(head.transform.forward));
         
+        Vector3 dir = (new Vector3(_target.x, 0, _target.y)) - (playerPos);
+        float x = Vector2.SignedAngle(Vector3ToVector2Horizontal(dir), Vector3ToVector2Horizontal(head.transform.forward));
         arrow.transform.eulerAngles = new Vector3(0, 0, -x + 180);
     }
 
+    private void PlaceNewTarget()
+    {
+        scoreTextField.text = _score.ToString(); 
+        beacon.transform.position = new Vector3(_target.x, 0, _target.y);
+        var height = Terrain.activeTerrain.SampleHeight(new Vector3(_target.x, 0, _target.y));
+        treasure.transform.position = new Vector3(_target.x, height, _target.y);
+    }
+    
     Vector2 Vector3ToVector2Horizontal(Vector3 vin)
     {
         return new Vector2(vin.x, vin.z);
