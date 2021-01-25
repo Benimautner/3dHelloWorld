@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private float _velocityY;
 
     private bool _inWater;
+    private bool _cantSprint;
 
     private void Start()
     {
